@@ -5,12 +5,28 @@ var add = 1
 var addpersec = 0
 var combo = 0
 
+var move_speed = 100
+var direction = 0
+
 
 func _on_Timer_timeout():
 	score += addpersec #After the Timer resets, add the add per second to the score.
 
 func _process(_delta):
-	$Score.text = str(score) #Change the text to the current score every frame.
+	$Score/Score.text = str(score) #Change the text to the current score every frame.
+	goToPlanet2(_delta)
+
+func goToPlanet2(_delta):
+	if direction == 0:
+		$Spaceship.global_position = $Spaceship.global_position.move_toward($planet2.global_position, _delta*move_speed)
+	if direction == 1:
+		$Spaceship.global_position = $Spaceship.global_position.move_toward($Earth.global_position, _delta*move_speed)
+	if $Spaceship.global_position == $planet2.global_position:
+		direction = 1
+		$Spaceship.scale *= -1
+	if $Spaceship.global_position == $Earth.global_position:
+		direction = 0
+		$Spaceship.scale *= -1
 
 var CPSRequirement = 20 #Clicks required to upgrade Clicks Per Second
 var CPCRequirement = 20 #Clicks required to upgrade Clicks Per Click
@@ -31,21 +47,6 @@ func _on_CPC1_pressed():
 		$VBoxContainer/CPC1.text = str("+1 CPC [", CPCRequirement, "]") #Combine multiple strings to show the required clicks.
 		$Label3.text = str("CPC:", add)
 
-
-func _on_Click_pressed():
-	$ClickTimer.start()
-	if combo < 25: # Make sure combo doesn't get too high
-		combo += 1
-	if combo >= 25: # Enable the other sparks when combo is over 25
-		$ComboEffect3.emitting = true # More Sparks
-	if combo > 15: # Enable the sparks when combo is over 15
-		$ComboEffect2.emitting = true # Sparks
-	if combo > 10: # Enable the effects when combo is over 10
-		score += round(add * (combo / 10))
-		$ComboEffect.emitting = true
-	if combo <= 10: # No combo
-		score += add
-
 func clicked():
 	score += add
 	pass
@@ -57,13 +58,6 @@ func _on_CPS1_pressed():
 		addpersec = addpersec + 1 #Add CPS.
 		$VBoxContainer/CPS1.text = str("+1 CPS [", CPSRequirement, "]") #Combine multiple strings to show the required clicks.
 		$Label2.text = str("CPS:", addpersec)
-
-
-func _on_ClickTimer_timeout():
-	combo = 0
-	$ComboEffect.emitting = false # Effects
-	$ComboEffect2.emitting = false # Sparks
-	$ComboEffect3.emitting = false # More Sparks
 
 
 func _on_CPS2_pressed():
